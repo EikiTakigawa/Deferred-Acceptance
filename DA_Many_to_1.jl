@@ -9,9 +9,9 @@ function deferred_acceptance(prop_prefs::Matrix{Int}, resp_prefs::Matrix{Int}, c
     end
     
     resp_matched = zeros(Int, sum(caps))
-    indptr = Array(Int, n+1)
+    indptr = Array(Int, r+1)
     indptr[1] = 1
-    for i in 1:n
+    for i in 1:r
         indptr[i+1] = indptr[i] + caps[i]
     end
     
@@ -22,29 +22,33 @@ function deferred_acceptance(prop_prefs::Matrix{Int}, resp_prefs::Matrix{Int}, c
                 if prop_prefs[k, j] == 0
                     prop_matched[j] = 0
                 else
-                    if resp_matched[indpr[prop_prefs[k,j]+1]-1] == 0
+                    if resp_matched[indptr[prop_prefs[k,j]+1]-1] == 0
                         if findfirst(resp_prefs[:,prop_prefs[k,j]], j) < findfirst(resp_prefs[:,prop_prefs[k,j]],0)
-                            resp_matched[indpr[prop_prefs[k,j]+1]-1] = j
+                            resp_matched[indptr[prop_prefs[k,j]+1]-1] = j
                             prop_matched[j] = prop_prefs[k,j]
                             l = 1
-                            while findfirst(resp_prefs[:,prop_prefs[k,j]],j) < findfirst(resp_prefs[:,prop_prefs[k,j]],resp_matched
-                                [indpr[prop_prefs[k,j]+1]-1-l]) && l <= caps[prop_prefs[k,j]] - 1
-                                resp_matched[indpr[prop_prefs[k,j]+1]-l] = resp_matched[indpr[prop_prefs[k,j]+1]-1-l]
-                                resp_matched[indpr[prop_prefs[k,j]+1]-1-l] = j
+                            while l <= caps[prop_prefs[k,j]] - 1
+                                if findfirst(resp_prefs[:,prop_prefs[k,j]],j) < findfirst(resp_prefs[:,prop_prefs[k,j]],resp_matched
+                                [indptr[prop_prefs[k,j]+1]-1-l])
+                                    resp_matched[indptr[prop_prefs[k,j]+1]-l] = resp_matched[indptr[prop_prefs[k,j]+1]-1-l]
+                                    resp_matched[indptr[prop_prefs[k,j]+1]-1-l] = j
+                                end
                                 l += 1
                             end
                         end
                     else
                         if findfirst(resp_prefs[:,prop_prefs[k,j]], j) < findfirst(resp_prefs[:,prop_prefs[k,j]],
-                                resp_mached[indpr[prop_prefs[k,j]+1]-1])
-                            prop_matched[resp_mached[indpr[prop_prefs[k,j]+1]-1]] = -1
-                            resp_matched[indpr[prop_prefs[k,j]+1]-1] = j
+                                resp_matched[indptr[prop_prefs[k,j]+1]-1])
+                            prop_matched[resp_matched[indptr[prop_prefs[k,j]+1]-1]] = -1
+                            resp_matched[indptr[prop_prefs[k,j]+1]-1] = j
                             prop_matched[j] = prop_prefs[k,j]
                             l = 1
-                            while findfirst(resp_prefs[:,prop_prefs[k,j]],j) < findfirst(resp_prefs[:,prop_prefs[k,j]],resp_matched
-                                [indpr[prop_prefs[k,j]-1-l]]) && l <= caps[prop_prefs[k,j]] - 1
-                                resp_matched[indpr[prop_prefs[k,j]-l]] = resp_matched[indpr[prop_prefs[k,j]-1-l]]
-                                resp_matched[indpr[prop_prefs[k,j]-l]] = j
+                            while l <= caps[prop_prefs[k,j]] - 1
+                                if findfirst(resp_prefs[:,prop_prefs[k,j]],j) < findfirst(resp_prefs[:,prop_prefs[k,j]],resp_matched
+                                [indptr[prop_prefs[k,j]+1]-1-l])
+                                    resp_matched[indptr[prop_prefs[k,j]+1]-l] = resp_matched[indptr[prop_prefs[k,j]+1]-1-l]
+                                    resp_matched[indptr[prop_prefs[k,j]+1]-1-l] = j
+                                end
                                 l += 1
                             end
                         end 
@@ -58,13 +62,16 @@ function deferred_acceptance(prop_prefs::Matrix{Int}, resp_prefs::Matrix{Int}, c
             break
         end
     end
-    return m_matched,n_matched,intbr
+    for i in 1:r
+    resp_matched[indptr[i]:indptr[i+1]-1] = sort(resp_matched[indptr[i]:indptr[i+1]-1])
+    end
+    return prop_matched,resp_matched,indptr
 end 
 
 function deferred_acceptance(prop_prefs::Matrix{Int}, resp_prefs::Matrix{Int})
     caps = ones(Int, size(resp_prefs, 2))
-    prop_matches, resp_matches, indptr = deferred_acceptance(prop_prefs, resp_prefs, caps)
-    return prop_matches, resp_matches
+    prop_matched, resp_matched, indptr = deferred_acceptance(prop_prefs, resp_prefs, caps)
+    return prop_matched, resp_matched
 end
 
 
