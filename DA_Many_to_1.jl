@@ -63,7 +63,7 @@ function deferred_acceptance(prop_prefs::Matrix{Int}, resp_prefs::Matrix{Int}, c
         end
     end
     for i in 1:r
-    resp_matched[indptr[i]:indptr[i+1]-1] = sort(resp_matched[indptr[i]:indptr[i+1]-1])
+        resp_matched[indptr[i]:indptr[i+1]-1] = sort(resp_matched[indptr[i]:indptr[i+1]-1])
     end
     return prop_matched,resp_matched,indptr
 end 
