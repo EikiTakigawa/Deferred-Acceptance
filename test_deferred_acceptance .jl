@@ -1,6 +1,6 @@
 # Test file for Deferred Acceptance algorithm routine
 
-const file_name = "DA(Many_to_1).jl"
+const file_name = "DA_Many_to_1.jl"
 const function_name = "deferred_acceptance"
 
 include(file_name)
